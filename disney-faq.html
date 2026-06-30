@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>上海迪士尼客服知识助手</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.2em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        .stats { color: white; text-align: center; margin-bottom: 20px; font-size: 0.9em; opacity: 0.8; }
+        .search-panel { background: white; border-radius: 20px; padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.15); }
+        .search-box { position: relative; margin-bottom: 20px; }
+        .search-box input { width: 100%; padding: 18px 55px 18px 20px; font-size: 16px; border: 2px solid #e5e7eb; border-radius: 12px; outline: none; transition: all 0.3s; }
+        .search-box input:focus { border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        .search-icon { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 24px; color: #667eea; }
+        .hot-keywords { margin-bottom: 20px; }
+        .hot-keywords h3 { font-size: 14px; color: #6b7280; margin-bottom: 10px; }
+        .hot-keywords-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .hot-keyword { padding: 6px 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.3s; }
+        .hot-keyword:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+        .category-filter { display: flex; flex-wrap: wrap; gap: 8px; }
+        .category-btn { padding: 8px 16px; background: #f3f4f6; color: #4b5563; border: none; border-radius: 20px; font-size: 14px; cursor: pointer; transition: all 0.3s; }
+        .category-btn:hover { background: #e5e7eb; }
+        .category-btn.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .result-count { color: white; text-align: center; margin-bottom: 15px; font-size: 14px; }
+        .faq-list { display: grid; gap: 15px; }
+        .faq-card { background: white; border-radius: 16px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .faq-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .faq-card .category-tag { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-bottom: 12px; }
+        .category-退款 { background: #fee2e2; color: #dc2626; }
+        .category-改期 { background: #fef3c7; color: #d97706; }
+        .category-改证 { background: #fef9c3; color: #ca8a04; }
+        .category-入园 { background: #dcfce7; color: #16a34a; }
+        .category-早享卡 { background: #dbeafe; color: #2563eb; }
+        .category-年卡 { background: #f3e8ff; color: #9333ea; }
+        .category-绑定 { background: #e0f2fe; color: #0284c7; }
+        .category-对接失败 { background: #fce7f3; color: #db2777; }
+        .category-交叉券 { background: #ccfbf1; color: #0d9488; }
+        .category-特殊退 { background: #fef3c7; color: #b45309; }
+        .category-其他 { background: #f3f4f6; color: #6b7280; }
+        .faq-card .question { font-size: 18px; font-weight: 600; color: #1f2937; margin-bottom: 12px; line-height: 1.4; }
+        .faq-card .answer { color: #4b5563; line-height: 1.8; margin-bottom: 12px; white-space: pre-line; }
+        .faq-card .meta { display: flex; flex-wrap: wrap; gap: 15px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 13px; }
+        .faq-card .meta-item { display: flex; align-items: flex-start; gap: 6px; }
+        .faq-card .meta-label { font-weight: 600; color: #667eea; white-space: nowrap; }
+        .faq-card .meta-value { color: #6b7280; line-height: 1.5; white-space: pre-line; }
+        .no-results { text-align: center; color: white; padding: 60px 20px; font-size: 18px; opacity: 0.8; }
+        mark { background: #fef08a; padding: 2px 4px; border-radius: 3px; }
+        @media (max-width: 768px) { .header h1 { font-size: 1.6em; } .faq-card { padding: 18px; } .faq-card .question { font-size: 16px; } }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🏰 上海迪士尼客服知识助手</h1>
+        <p>快速查找迪士尼门票相关问题的标准答案</p>
+    </div>
+    <div class="stats">
+        <span id="totalFaqs">共 52 条FAQ</span> | <span>11 个分类</span> | <span>基于真实客服案例</span>
+    </div>
+    <div class="search-panel">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="输入关键词搜索，如：退款、改期、GAL码...">
+            <span class="search-icon">🔍</span>
+        </div>
+        <div class="hot-keywords">
+            <h3>🔥 高频关键词</h3>
+            <div class="hot-keywords-list">
+                <span class="hot-keyword" onclick="searchKeyword('退款')">退款</span>
+                <span class="hot-keyword" onclick="searchKeyword('改期')">改期</span>
+                <span class="hot-keyword" onclick="searchKeyword('GAL码')">GAL码</span>
+                <span class="hot-keyword" onclick="searchKeyword('入园')">入园</span>
+                <span class="hot-keyword" onclick="searchKeyword('儿童票')">儿童票</span>
+                <span class="hot-keyword" onclick="searchKeyword('年卡')">年卡</span>
+                <span class="hot-keyword" onclick="searchKeyword('特殊退')">特殊退</span>
+                <span class="hot-keyword" onclick="searchKeyword('项目故障')">项目故障</span>
+                <span class="hot-keyword" onclick="searchKeyword('对接失败')">对接失败</span>
+                <span class="hot-keyword" onclick="searchKeyword('部分退')">部分退</span>
+                <span class="hot-keyword" onclick="searchKeyword('退差')">退差</span>
+                <span class="hot-keyword" onclick="searchKeyword('选错日期')">选错日期</span>
+            </div>
+        </div>
+        <div class="category-filter">
+            <button class="category-btn active" data-category="all" onclick="filterCategory('all')">全部</button>
+            <button class="category-btn" data-category="退款" onclick="filterCategory('退款')">退款</button>
+            <button class="category-btn" data-category="改期" onclick="filterCategory('改期')">改期</button>
+            <button class="category-btn" data-category="改证" onclick="filterCategory('改证')">改证</button>
+            <button class="category-btn" data-category="入园" onclick="filterCategory('入园')">入园</button>
+            <button class="category-btn" data-category="早享卡" onclick="filterCategory('早享卡')">早享卡</button>
+            <button class="category-btn" data-category="年卡" onclick="filterCategory('年卡')">年卡</button>
+            <button class="category-btn" data-category="绑定" onclick="filterCategory('绑定')">绑定</button>
+            <button class="category-btn" data-category="对接失败" onclick="filterCategory('对接失败')">对接失败</button>
+            <button class="category-btn" data-category="交叉券" onclick="filterCategory('交叉券')">交叉券</button>
+            <button class="category-btn" data-category="特殊退" onclick="filterCategory('特殊退')">特殊退</button>
+            <button class="category-btn" data-category="其他" onclick="filterCategory('其他')">其他</button>
+        </div>
+    </div>
+    <div class="result-count" id="resultCount"></div>
+    <div class="faq-list" id="faqList"></div>
+</div>
+<script>
+const faqData=[
+{category:"退款",question:"门票能退吗？退款政策是什么？",answer:"【条件退新规-2026.1.12上线】\n• 使用日期前7天23:59（含）前申请取消：0%损失\n• 使用日期前1天23:59（含）前申请取消：一日票80元/人，二日票160元/人\n• 使用日期前1天23:59后申请取消：100%损失",condition:"仅限门市价产品（以产品退改设置为准）",notes:"1. 改期后不支持申请退订\n2. 申请后不可撤销\n3. 只能整单申请，不可部分退\n4. 两日票退款标准以购票时所选首个出行日期为准",keywords:["退款","退票","退订","条件退","退款政策","能退吗","可以退吗","退多少钱"]},
+{category:"退款",question:"退订超时怎么处理？",answer:"退订超时临时处理方案：请OP同事登陆景区后台查询退款状态，如已到\"更新贷记凭证\"步骤可提前退给客人",condition:"使用日期前1天-前7天之间",notes:"需OP同事协助查询景区后台状态",keywords:["退订超时","超时退款","退款超时"]},
+{category:"退款",question:"退款金额不对客人有异议",answer:"1. 先核实退款计算是否正确（按条件退新规）\n2. 如客人只使用部分项目要求再退费用，需确认是否符合部分退规则\n3. 如计算无误，向客人解释退款政策\n4. 如确有误差，按实际差额补退",condition:"客人对退款金额不满",notes:"只能整单退，不可部分退；需与客人确认退款明细",keywords:["退款金额","金额异议","退款不对","金额有误","金额有异议","金额不对"]},
+{category:"退款",question:"乐园项目停运怎么退款？",answer:"1. 受乐园项目停运影响，对订单内未使用的DPA（迪士尼尊享卡）等部分退款\n2. 按业务通知的退款明细表格匹配退款金额\n3. 订单资源保留，无需取消资源\n4. 之前已操作过退款的订单勿重复操作",condition:"乐园项目停运导致的退款",notes:"按退款明细表格操作；勿重复退款；如有疑问先反馈业务确认",keywords:["项目停运","停运退款","乐园停运"]},
+{category:"退款",question:"游玩时项目故障申请退款",answer:"1. 确认客人是否已取纸质门票\n2. 如已取票：需核实故障项目是否属于套餐内\n3. 部分项目故障：视情况退部分费用，需景区审批\n4. 发事件给业务经理咨询，切勿直接操作锁单",condition:"项目故障导致无法体验",notes:"1. 需景区审批是否可退\n2. 切勿直接操作锁单\n3. 退多少以景区审核为准",keywords:["项目故障","设备故障","无法体验","部分退款","创极速光轮","故障退款"]},
+{category:"退款",question:"订单确认中退订需挽损",answer:"1. 确认订单状态是否为\"确认中\"\n2. 如已退订：需挽损处理\n3. 涉及结算问题需发送【结算差异核实】事件核查\n4. 联系业务经理确认挽损方案",condition:"订单在确认中状态退订",notes:"1. 后续涉及结算问题需核查\n2. 挽损方案以业务经理确认为准",keywords:["确认中","退订挽损","挽损","结算差异"]},
+{category:"退款",question:"多人票是否支持部分退？",answer:"多人票（包括但不限于：双人票、亲子票、家庭票、三人票、四人票、同一笔订单多张单人票同属一个GAL码）均不支持部分退款！如遇特殊情况，请发事件给业务经理咨询；切勿直接操作锁单！",condition:"均不支持部分退款",notes:"PreBundle套票需用PD开头的订单号在Clota后台操作改证/改期。Refund Portal后台操作时无须使用PD号",keywords:["部分退","多人票","双人票","亲子票","家庭票","三人票","四人票","部分退款","PreBundle","PD号"]},
+{category:"退款",question:"退差问题怎么处理？",answer:"景区回复不代表差价一定可退！上迪产品高改低一般不退差价，如有差价可退，景区会在对账时通知我方退差，一般为实际出行日期过后15工作日对账，故如到时未通知可认为无差价可退",condition:"高改低一般不退差价",notes:"景区对账后才会通知退差，实际出行日期后15工作日",keywords:["退差","差价","高改低","不退差价","对账","退差价"]},
+{category:"退款",question:"自助申请退订后想恢复",answer:"1. 客人自助申请退订符合规则，后台已到退单操作状态\n2. 如客人想恢复订单，需确认是否还可处理\n3. 如无法恢复，可给客人先退订以便重新下单",condition:"客人自助退订后想恢复",notes:"退订后需重新下单；需确认订单状态",keywords:["自助退订","恢复订单","退订恢复"]},
+{category:"退款",question:"客人在现场要求退款",answer:"1. 先确认订单状态和出票情况\n2. 登录Clota后台查询订单状态\n3. 未取票≠可退款，需景区反馈\n4. 特殊退需发邮件给SHDR.sales.STT@disney.com",condition:"客人在现场",notes:"1. 没有得到景区反馈前勿操作退订\n2. 特殊退需走邮件申请流程",keywords:["现场退款","现场要求"]},
+{category:"改期",question:"怎么改期？",answer:"两种方式：\n1. 【系统内改期】通过clota系统或Refund Portal操作\n2. 【下新退旧】客人重新下单，旧订单操作退款",condition:"系统内改期：入园前1天23:59前\n下新退旧：入园当天",notes:"1. 改期后不支持申请退订\n2. 常规改期记录见订单后台，特改记录见景区后台备注",keywords:["改期","修改日期","变更日期","系统内改期","下新退旧"]},
+{category:"改期",question:"哪些票种支持改期？",answer:"支持改期：\n• 1日票（成人/儿童/老人/随买随用）✔\n• 2日票（成人/儿童/老人）✔\n\n不支持改期：\n• 1日早鸟票 ✗\n• 2日早鸟票 ✗",condition:"以产品退改设置为准",notes:"改期后不支持申请退订",keywords:["改期","支持改期","哪些票种","早鸟票","大学生票"]},
+{category:"改期",question:"客人选错日期需要改期",answer:"1. 确认订单是否支持系统内改期\n2. 如支持：在Clota后台直接操作改期\n3. 如不支持或已过改期时间：走下新退旧流程\n4. 改期需在使用日期前3天23:59前操作",condition:"入园前3天23:59前",notes:"1. 改期可能失败，视余票情况\n2. 一个GAL下多张票不支持部分改期\n3. 改期后不支持退订",keywords:["选错日期","日期错了","改期","日期选错","需要改期","选错"]},
+{category:"改证",question:"怎么改证？",answer:"改证新规：\n1. 已绑定二销的门票无法改证（提示\"该VID存在PFC\"）\n2. 支持改证的票种，1个订单多人出行时，仅需修改对应出行人证件号\n3. 在Clota后台操作",condition:"仅随买随用票种支持改证",notes:"1. 门票如支持改证，需提前1天23:59分操作\n2. 哪个出行人要变更，就改哪个出行人的证件号",keywords:["改证","修改证件","变更证件","改身份证","VID存在PFC"]},
+{category:"入园",question:"入园需要什么证件？",answer:"购票证件要求：\n• 中国内地游客：《中华人民共和国居民身份证》\n• 16周岁以下内地儿童：户口簿上的身份证号码\n• 港澳游客：《港澳居民来往内地通行证》等\n• 台湾游客：《台湾居民来往大陆通行证》等\n• 外籍游客：有效护照或《外国人永久居留身份证》",condition:"所有游客",notes:"*注：中国游客如果填写护照购票，可能会被拒绝入园",keywords:["入园证件","身份证","护照","港澳通行证","证件要求","入园"]},
+{category:"入园",question:"入园是否需要预约？",answer:"不需要预约。指定日门票和闭园赠送的6个月期票带好购票原证件及购票凭证即可入园。年卡需要预约：已激活用年卡卡号或GAL码预约，未激活用GAL码预约",condition:"指定日门票/6个月期票/年卡",notes:"年卡必须预约才能入园",keywords:["预约","入园预约","需要预约吗","不预约","直接入园","年卡预约"]},
+{category:"入园",question:"小朋友11周岁+能不能买儿童票？",answer:"可以。迪士尼儿童票要求游园当日年龄在3周岁（含）至11周岁（含），没有过12周岁生日，就属于11周岁（含）",condition:"游园当日年龄3-11周岁（含）",notes:"看游园当日年龄，不是购票时年龄",keywords:["儿童票","11周岁","12周岁","年龄","游园当日","小朋友","小孩","儿童"]},
+{category:"入园",question:"不满16周岁可以不带家长入园吗？",answer:"不可以，必须由家长陪同。不满16周岁即使有身份证也需要家长陪同入园",condition:"不满16周岁",notes:"必须有家长陪同",keywords:["16周岁","未成年","家长","陪同","身份证","独自入园"]},
+{category:"入园",question:"主预订人可以和同行人先后入园吗？",answer:"不可以，必须同时一起入园。入园取到纸质门票后，可自行出入园区",condition:"主预订人和同行人必须同时入园",notes:"入园取票后可自行出入",keywords:["主预订人","同行人","先后入园","一起入园","同时入园"]},
+{category:"入园",question:"门票是一次性的吗？可以多次进入吗？",answer:"使用日期当天凭纸质门票可以多次出入园区",condition:"当天多次出入",notes:"必须是纸质门票",keywords:["一次性","多次进入","多次出入","当天","纸质门票"]},
+{category:"入园",question:"客人名字填错是否影响入园？",answer:"暂不影响，证件号正确即可入园",condition:"证件号正确",notes:"名字不影响，证件号对就行",keywords:["名字填错","姓名错误","证件号","不影响入园","名字错了"]},
+{category:"入园",question:"到场无票怎么办？",answer:"凭GAL和对应的身份证至游客服务中心处理",condition:"到场无票",notes:"需要GAL和身份证",keywords:["无票","没票","到场","找不到票","到场无票"]},
+{category:"早享卡",question:"早享卡怎么绑定购买？",answer:"购买流程：\n1. 打开迪士尼APP → 预订 → 游玩 → 早享卡\n2. 点击\"关联年卡或门票\"\n3. 输入GAL码（订单确认码）或扫描门票二维码\n4. 输入手机号及证件号后四位关联",condition:"入园日前的216小时（9天）开始购买",notes:"1. GAL码无效：请手动输入不要复制\n2. 提示已绑定：退出APP重试或明天再试\n3. 有价格有库存但无法绑定：该日期无库存",keywords:["早享卡","绑定","购买早享卡","GAL码","关联门票"]},
+{category:"早享卡",question:"一个GAL码下多人可以部分买早享卡吗？",answer:"不可以。同一订单同一个GAL码下的游客，必须一起入园，若要使用早享卡，几人出行就需要购买几张早享卡",condition:"同一订单多人出行",notes:"单早享卡只有迪士尼官方在售，其他早享卡咨询请联系官网400-180-0000",keywords:["多人","部分购买","GAL码","早享卡","一起入园"]},
+{category:"年卡",question:"年卡怎么绑定预约入园？",answer:"登记类别选择：年卡\n年卡卡号：客人激活后的一串数字\n订单编号：GAL码",condition:"年卡用户",notes:"1. GAL码和年卡卡号填错会显示\"卡号无效\"，请引导正确填写\n2. GAL码复制粘贴显示无效时，请手动输入",keywords:["年卡","绑定","预约入园","年卡卡号","GAL码"]},
+{category:"年卡",question:"什么票型可以升级年卡？",answer:"仅常规指定日一日门票可升级年卡，其他所有票型都不支持。游客需在使用日期当日17：00前持本人有效身份证件前往上海迪士尼乐园游客服务中心处理",condition:"仅常规指定日一日票",notes:"必须当天17:00前到游客服务中心",keywords:["升级年卡","年卡升级","指定日","一日票","其他票型","游客服务中心"]},
+{category:"绑定",question:"GAL码是什么？怎么获取？",answer:"GAL码是迪士尼的订单号（携程第三方订单号），门票预订成功后客人就能收到。格式如：21190 05659 00000",condition:"所有门票订单",notes:"订票成功后，客人直接前往现场兑换纸质票即可使用，无须提前预约或在app上关联",keywords:["GAL码","订单号","第三方订单号","怎么获取"]},
+{category:"绑定",question:"纸质门票怎么绑定APP？",answer:"入园当天拿到纸质门票后：\n1. 扫描门票背面二维码\n2. 或输入票号（纸质门票背面的20位数字）\n\n无法提前绑定，必须入园当天拿到纸质票后方可操作",condition:"入园当天",notes:"票号是纸质门票背面的20位数字，无法提前获取",keywords:["纸质门票","绑定APP","票号","二维码","提前绑定"]},
+{category:"对接失败",question:"订单对接失败怎么办？",answer:"常见对接失败提示及处理：\n1.【证件限购】当天已有门票→全额无损退，让客人不要重复下单\n2.【证件限购】有待支付订单→全额无损退，让客人取消待支付订单\n3.【年卡用户】→全额无损退，让客人按年卡用户规则预约入园",condition:"实名制要求：1人1证件1出行日期仅可预订1张票",notes:"若订单未产生第三方订单号，且等到\"最终对接失败\"，才可操作退款",keywords:["对接失败","证件限购","年卡用户","GID","全额无损退","对接超时"]},
+{category:"对接失败",question:"景区系统响应超时时怎么判断是否出票？",answer:"登录景区clota后台，订单管理-订单查询-输入游客下单证件号。无订单信息时可直接无损全退，不走对接",condition:"用clota后台查询",notes:"以clota为准，9072可能不准确",keywords:["超时","响应超时","是否出票","对接超时","无订单","无损全退"]},
+{category:"交叉券",question:"机酒火交叉券怎么用？",answer:"客人领取优惠券后：\n打开携程APP → 我的携程 → 优惠券 → 门票活动 → 找到专属优惠券点击使用",condition:"购买指定资源弹窗领取的优惠券",notes:"1. 弹窗未点击领取则无法再领取\n2. 机票用户未领券的特殊情况：行前发链接下单，出行后联系客服退66元差价",keywords:["交叉券","优惠券","机酒火","专属券","弹窗领取"]},
+{category:"特殊退",question:"迪士尼特殊退订申请条件？",answer:"1. 交通原因：需官方盖章证明\n2. 健康原因：需挂号单、收费单、病历单\n3. 工作原因：需完整有效材料\n4. 不可抗力：需官方新闻\n5. 重复预订：需邮件说明\n6. 选错产品类型：同主预订人同日期同GAL\n7. 系统异常：视具体情况\n8. 证件号输入错误：支持改证则改证",condition:"必须符合对应条件",notes:"所有投诉邮件发SHDR.Sales.SR@disney.com抄送Zhao,Zoe及Arina.Zhang，工作日9:00-18:00。必须提供身份证",keywords:["特殊退","退票","退款","交通原因","健康原因","工作原因","不可抗力","重复预订","系统异常","证件错误","投诉"]},
+{category:"特殊退",question:"特殊退款后台工单创建后注意什么？",answer:"退款后台工单一经创建，订单就会被冻结无法使用。如材料被驳回后客人想继续出行，请提前1天16点前发邮件给SHDR.Sales.SR@disney.com抄送Zoe.Y.Zhao@disney.com、Arina.Zhang@disney.com申请关闭工单",condition:"工单创建后订单冻结",notes:"邮件需写退单编号、GAL号及关闭原因。景区邮件处理时间8:00-17:00",keywords:["特殊退","工单","冻结","驳回","关闭工单","退款后台","订单冻结"]},
+{category:"特殊退",question:"升级退的条件和流程？",answer:"条件退或升级退仅能二选一。流程：预订新单→发迪士尼锁定原单→新单使用→发升级退表→迪士尼ok后原单退款。要求：数量一致、证件一致、新单价格更高、原单未使用、供应商ID相同。建议原单和新单使用日期不超过1个月",condition:"条件退和升级退二选一",notes:"原单日志出现\"买断\"字样时，1张门票对应1个GAL码，升级退需客人分开下单",keywords:["升级退","条件退","二选一","锁定","买断","流程","新单","原单"]},
+{category:"特殊退",question:"特殊改期/锁单/升级退/儿童免票申请",answer:"所有特殊改期、查询、锁单、升级退、儿童免票申请邮件发SHDR.sales.STT@disney.com并抄送Zhao,Zoe，工作日9:00-18:00。针对客人已在现场的紧急事件申请，邮件标题特别标出【紧急】",condition:"工作日9:00-18:00",notes:"紧急事件要标注【紧急】",keywords:["特殊改期","锁单","升级退","儿童免票","申请","邮件","紧急","SHDR"]},
+{category:"其他",question:"门票人群买错怎么办？",answer:"1. 免票儿童买了票：必须在现场找工作人员登记后才能申请退票\n2. 成人错买儿童票：可现场补差价升级为成人票\n3. 儿童买了成人票：已使用差价不退，需退票必须现场确认",condition:"现场处理为主",notes:"成人错买儿童可正常出行现场补差价；当景区断票时儿童可买成人票不影响入园差价不退",keywords:["人群买错","买错票","免票儿童","成人错买","儿童买成人","补差价","现场"]},
+{category:"其他",question:"6个月有效期门票怎么使用？",answer:"不可赠予他人，不可改证。景区赠送的6个月期票是植入原订单主预订人证件下的，改证后无法入园。使用时出行人必须与原单完全一致，且必须一起入园，主预定人必须在场同行",condition:"主预定人必须在场同行",notes:"不能改证不能转让，出行人必须一致",keywords:["6个月","有效期","赠票","赠送","期票","改证","赠予","转让"]},
+{category:"其他",question:"订单状态怎么查询？",answer:"登录景区clota后台→订单管理→票状态→输入GAL码查询。已使用=已取出纸质门票；未使用=纸质门票未被取出不代表可退款；已退票=改期也显示此状态不代表可退款",condition:"用clota后台查询",notes:"9072核销状态因接口超时不完全正确，请以景区clota为准。没有得到景区反馈前，请勿操作退订",keywords:["订单状态","查询","clota","后台","票状态","GAL码","已使用","未使用","已退票","核销"]},
+{category:"其他",question:"PreBundle套票怎么操作？",answer:"若多人票或票+X产品在9072后台显示为PreBundle，请点击商家信息，以PD开头的PreBundle订单号在景区Clota后台操作改证/改期。Refund Portal后台操作时无须使用PD号",condition:"用PD号操作",notes:"Refund Portal不用PD号",keywords:["PreBundle","PD号","套票","多人票","9072"]},
+{category:"早享卡",question:"餐券领取失败怎么办？",answer:"景区系统问题，请客人带着纸质门票直接去餐厅使用",condition:"景区系统问题",notes:"带纸质门票去餐厅",keywords:["餐券","领取失败","餐厅","用餐"]},
+{category:"特殊退",question:"投诉申请怎么操作？",answer:"所有投诉邮件发SHDR.Sales.SR@disney.com抄送Zhao和Zoe及Arina.Zhang@disney.com，受理时间为工作日9:00-18:00。必须提供身份证，各种游客关系证明不再需要，证件合照即可",condition:"必须提供身份证",notes:"证件合照即可",keywords:["投诉","投诉邮件","投诉申请"]},
+{category:"入园",question:"客人名字填错/证件信息填反能入园吗？",answer:"证件号码正确即可入园，姓名错误不影响使用。如果成人和儿童证件信息填反：方案一：儿童用成人票（差价不可退），成人用儿童票（现场补差价）；方案二：带好所有证件去游客服务中心协调",condition:"证件号正确",notes:"名字不影响，证件号对就行。实名制下不可修改姓名",keywords:["名字错误","姓名错误","证件填反","姓名错了","不影响入园","证件号正确"]},
+{category:"入园",question:"儿童年龄不符合儿童票标准怎么办？",answer:"1. 儿童票要求游园当日3-11周岁（含）\n2. 如果儿童年龄超标需购买成人票：现场补差价最方便，不要退订\n3. 亲子套票中儿童超龄：现场补差价升级为成人票即可",condition:"现场处理",notes:"别退订，现场补差价最方便",keywords:["年龄不符","儿童超龄","儿童票成人票","补差价","亲子票","年龄超标"]},
+{category:"入园",question:"双次午后票能否换人使用？",answer:"不可以。门票实名制，必须购票时指定的出行人本人使用，不能转让给其他人使用",condition:"实名制",notes:"实名制，不能换人",keywords:["双次午后票","换人","实名制","不能转让"]},
+{category:"入园",question:"不满16周岁能否分开入园？",answer:"不可以，未满16周岁必须由成人陪同入园。即使大人从不同入口进，也不能让未满16周岁的孩子单独入园",condition:"不满16周岁",notes:"必须有成人陪同，不能分开",keywords:["分开入园","16周岁","成人陪同","未成年人","单独入园"]},
+{category:"入园",question:"未满3岁儿童能否入园？",answer:"未满3周岁儿童免票入园。需要看产品披露，确认该订单对应的免票政策。如产品要求需申报，则需提前申报；如无需申报，凭护照即可入园",condition:"未满3周岁免票",notes:"看产品披露确认是否需要申报",keywords:["3岁","免票","婴幼儿","护照入园","儿童入园"]},
+{category:"改期",question:"订单日期需要改期但系统不支持？",answer:"如果系统内改期不可用（如日期跨度大、已临近出行等），需走"下新退旧"流程：\n1. 客人重新下单购买新日期的票\n2. 新单出行后，向景区申请退旧单\n3. 旧单是否可退以景区审核结果为准",condition:"系统不支持改期时",notes:"不能改只能下新退旧，旧单是否可退以景区审核为准",keywords:["改期","日期提前","下新退旧","日期变更","改日期"]},
+{category:"退款",question:"对接失败/未出票能否退订？",answer:"1. 对接不成功：需等到"最终对接失败"才可以退\n2. 对接失败：整单退（不能部分退）\n3. 确认有票后：不能退\n4. 未产生第三方订单号且最终对接失败：可全额无损退",condition:"需等待最终对接结果",notes:"最终对接失败才能退，有票不能退",keywords:["对接失败","未出票","对接不成功","最终对接失败","不管对接退"]},
+{category:"退款",question:"订单在退订中/已退订能否恢复？",answer:"不可以。已退订的订单无法恢复，也无法取消退订流程。客人如需使用，只能重新下单购买",condition:"已退订",notes:"无法恢复，只能重新下单",keywords:["恢复订单","退订恢复","已退订","取消退订","重新下单"]},
+{category:"退款",question:"临时有事/加班/生病申请退订？",answer:"1. 需提供无法出行凭证（如加班证明、医院病历等）\n2. 向景区申请特殊退订\n3. 是否可退以景区审核结果为准\n4. 按操作注意事项文档处理",condition:"需提供证明材料",notes:"以景区审核结果为准",keywords:["加班","生病","受伤","无法出行","特殊退订","证明材料"]},
+{category:"退款",question:"客人对退款金额有异议？",answer:"如客人表示退款金额不对、只玩了一个项目要求再多退等：\n1. 退款金额按景区规则计算，无法修改\n2. 向客人解释退款政策\n3. 无法满足客人额外退款要求",condition:"金额按景区规则",notes:"无法退，金额以景区计算为准",keywords:["退款金额","金额异议","只玩了一个项目","金额不对","金额有误"]},
+{category:"退款",question:"客人非自愿支付/误操作要求退款？",answer:"如客人声称非自愿支付（如绑定银行卡自动扣款等）但仍要求全额退款：\n不可退。按订单退改政策执行",condition:"按退改政策执行",notes:"不可退",keywords:["非自愿支付","误操作","自动扣款","误购","要求退款"]},
+{category:"改期",question:"买错产品（如单人票vs双人票）？",answer:"买错产品类型需走"下新退旧"流程：\n1. 客人重新下单购买正确的产品\n2. 旧单按下新退旧申请退订\n3. 旧单是否可退以景区审核结果为准",condition:"下新退旧流程",notes:"旧单以景区审核为准",keywords:["买错","单人票双人票","产品错误","下新退旧","误购"]},
+{category:"早享卡",question:"买了门票能否继续购买早享卡和尊享卡？",answer:"可以。以迪士尼APP内早享卡和尊享卡购买界面显示为准，门票预订成功后可通过GAL码关联购买",condition:"以购买界面为准",notes:"以APP购买界面为准",keywords:["早享卡","尊享卡","购买","继续购买"]}
+];
+let currentCategory='all',currentSearch='';
+function searchKeyword(kw){document.getElementById('searchInput').value=kw;currentSearch=kw.toLowerCase();renderFAQ();}
+function filterCategory(cat){currentCategory=cat;document.querySelectorAll('.category-btn').forEach(b=>b.classList.toggle('active',b.dataset.category===cat));renderFAQ();}
+function highlightText(t,term){if(!term)return t;const r=new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');return t.replace(r,'<mark>$1</mark>');}
+function renderFAQ(){const list=document.getElementById('faqList'),rc=document.getElementById('resultCount'),st=currentSearch;let f=faqData.filter(i=>{if(currentCategory!=='all'&&i.category!==currentCategory)return false;if(!st)return true;return[i.question,i.answer,i.condition,i.notes,...(i.keywords||[])].join(' ').toLowerCase().includes(st);});rc.textContent=`找到 ${f.length} 条结果`;if(!f.length){list.innerHTML='<div class="no-results">😔 没有找到相关问题，请尝试其他关键词</div>';return;}list.innerHTML=f.map(i=>`<div class="faq-card"><span class="category-tag category-${i.category}">${i.category}</span><div class="question">${highlightText(i.question,st)}</div><div class="answer">${highlightText(i.answer,st)}</div><div class="meta"><div class="meta-item"><span class="meta-label">📋 适用条件：</span><span class="meta-value">${i.condition||'无'}</span></div>${i.notes?`<div class="meta-item"><span class="meta-label">⚠️ 注意事项：</span><span class="meta-value">${i.notes}</span></div>`:''}</div></div>`).join('');}
+document.getElementById('searchInput').addEventListener('input',e=>{currentSearch=e.target.value.toLowerCase();renderFAQ();});
+renderFAQ();
+</script>
+</body>
+</html>
